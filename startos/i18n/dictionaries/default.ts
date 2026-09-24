@@ -21,6 +21,12 @@ const dict = {
   'Set the PPQ.AI API key the proxy uses to authenticate. Requests are billed to this key.': 14,
   // init/taskConfigureApiKey.ts
   'Add your PPQ.AI API key here, or start the service and save one on the Status Page': 15,
+  // actions/showServiceUrl.ts
+  'Service-to-Service URL': 16,
+  'Resolve the internal URL that services on this same StartOS server (e.g. Open WebUI) can use to reach this proxy over the LXC bridge, without TLS.': 17,
+  'Service-to-Service Base URL': 18,
+  'Paste this URL into Open WebUI (Admin → Connections → OpenAI API, URL field), Save, then add the private/ model IDs shown on the Status Page. This address only works from services on this same server — it is not reachable from your browser.': 19,
+  'Could not resolve the service-to-service address for this package.': 20,
 } as const
 
 /**
