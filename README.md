@@ -78,7 +78,6 @@ Two models, and keeping them apart is the point.
 **The proxy's config file is co-owned, and its shape must stay exactly upstream's.** The proxy rewrites the whole file when a key is saved on its status page, so anything else stored there would be destroyed — which is why the verbose-logging setting lives in a separate file the container cannot see.
 
 **The API key is not passed as an environment variable**, though upstream supports that. Leaving it out means the proxy's own key store is the single owner of the key, so a key set through the status page and a key set through the action are the same key rather than two competing sources.
-
 The config file is read reactively, which is what makes a key saved by the action take effect: the write restarts the daemon, and the proxy reloads the file at start.
 
 ## Dependencies
@@ -100,6 +99,8 @@ Both are exported from the **same binding**, because they are the same server: o
 
 **Neither is authenticated by StartOS**, and the status page is where the API key can be saved — so anyone who can reach the address can read the attestation state, use your key for inference, and replace it. Treat the address as a credential.
 
+**Same-server consumption (service-to-service).** A client running in *another service's container on this same server* — Open WebUI, a custom agent — must not use the LAN `https://` address: the calling runtime does not trust this server's self-signed Root CA, so the dial fails certificate verification. What it *should* use is the LXC-bridge address, which is plain HTTP — no TLS, no cert handling. Run the **Service-to-Service URL** action and paste the returned `http://<bridge-ip>:<port>/v1` URL into the client. The LAN `https://` address (e.g. `https://192.168.0.158:56849`) remains correct for off-box clients — a browser with the server's Root CA trusted, or `curl -k`.
+
 ## Installation and First-Run Flow
 
 Install seeds nothing and raises an `important` task asking for the PPQ.AI API key.
@@ -112,7 +113,7 @@ So the proxy starts without a key. It serves its status page, performs attestati
 
 ## Actions
 
-One action.
+Two actions, both available whether or not the service is running.
 
 ### Configure PPQ API Key
 
@@ -125,6 +126,15 @@ Sets the API key and the verbose-logging switch.
 - **The key's shape is checked before it is written.** Upstream's status page rejects a malformed key outright, but a bad key written straight into the config file would only surface later as a failed request — so the same check is applied here.
 
 **Requests are billed to whichever key is set.**
+
+### Service-to-Service URL
+
+Resolves the internal LXC-bridge address another service on this same server (Open WebUI) dials to reach the proxy.
+
+- **What it returns:** the copyable base URL `http://<bridge-ip>:<assigned-port>/v1`.
+- **Why it exists:** the LAN `https://` address fails from another container, because that container's runtime does not trust this server's Root CA; the bridge address is plain HTTP and needs no trust setup.
+- **Usage:** in Open WebUI, Admin Panel → Connections → OpenAI API, paste the URL, Save, and add the `private/` model IDs shown on the Status Page.
+- **Cost:** none; the service does not restart.
 
 ## Tasks
 
@@ -165,6 +175,7 @@ A restored instance comes back with the same key and works immediately, since no
 5. **The API key cannot be cleared from the action** — leaving the field blank preserves it.
 6. **The package cannot add settings to the proxy's config file**, which upstream rewrites wholesale.
 7. **The only package-level setting is verbose logging.** Everything else is upstream's.
+8. **Same-server clients must use the bridge address, not the LAN `https://` URL** — see [Network Access and Interfaces](#network-access-and-interfaces).
 
 ---
 
@@ -196,8 +207,11 @@ interfaces:
   api: { type: api, port: 8787 } # same binding, exported as a second interface
 actions:
   - configure-api-key # blank key field preserves the existing key
+  - show-service-to-service-url # prints http://<bridge-ip>:<port>/v1 for same-server clients (Open WebUI)
 tasks:
   - { action: configure-api-key, severity: important } # not critical, by design
 health_checks:
   - proxy # the port opens only after enclave attestation succeeds
 ```
+
+**Stable contract for dependents:** `startos/utils.ts` exports `apiHostId` (`'main'`) and `apiPort` (`8787`) — the values a package like Open WebUI imports rather than hardcoding (`sdk.host.getBridgeAddress(effects, { packageId: 'ppq-private-mode', hostId: apiHostId, internalPort: apiPort, ssl: false })`).
