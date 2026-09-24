@@ -15,12 +15,10 @@ const inputSpec = InputSpec.of({
     default: null,
     masked: true,
     placeholder: 'sk-...',
-    // Upstream's own shape check, applied here too — the Status Page rejects a
-    // malformed key outright, but a key written straight to config.json would
-    // only surface as a 401 on the first request.
+    // Allow standard PPQ keys and broader key lengths/characters (e.g. alphanumeric, underscores, hyphens)
     patterns: [
       {
-        regex: '^sk-[A-Za-z0-9]{16,64}$',
+        regex: '^sk-[A-Za-z0-9_-]{16,128}$',
         description: i18n('A PPQ.AI key starts with "sk-".'),
       },
     ],
