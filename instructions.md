@@ -65,6 +65,22 @@ Page shows the same list.
 Requests are billed to your saved API key by default. To bill a different
 PPQ.AI key per request, pass it as an `Authorization: Bearer` header.
 
+### Open WebUI (or any service on this same server)
+
+Open WebUI and this proxy are separate StartOS services. From one container to
+another, the LAN `https://` address fails certificate validation — the calling
+container does not trust this server's self-signed Root CA. Use the internal
+LXC-bridge address instead, which is plain HTTP (no TLS involved):
+
+1. On this service, run the **Service-to-Service URL** action (Actions tab).
+2. Copy the URL it prints — `http://<bridge-ip>:<port>/v1`.
+3. In Open WebUI: **Admin Panel → Connections → OpenAI API**, paste the URL in
+   the URL field, click **Save**, and add the `private/` model IDs shown on the
+   Status Page (for example `private/glm-5-2`).
+
+Any other service container on the same server can use the same URL. It is not
+reachable from your browser — that is what the LAN `https://` address is for.
+
 ### Replacing the key
 
 Either surface works, and both write the same place: **Replace key** on the
