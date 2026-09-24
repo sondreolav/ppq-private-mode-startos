@@ -48,7 +48,7 @@ Point any OpenAI-compatible client at the API address:
 
 ```
 POST <api-address>/v1/chat/completions
-{"model": "private/glm-5-2", "messages": [{"role": "user", "content": "Hello"}]}
+{"model": "private/glm-5-3", "messages": [{"role": "user", "content": "Hello"}]}
 ```
 
 Anthropic-SDK clients (including Claude Code) can use the native endpoint at
@@ -56,7 +56,7 @@ Anthropic-SDK clients (including Claude Code) can use the native endpoint at
 
 ```
 export ANTHROPIC_BASE_URL="<api-address>"
-export ANTHROPIC_MODEL="private/glm-5-2"
+export ANTHROPIC_MODEL="private/glm-5-3"
 ```
 
 `GET <api-address>/v1/models` lists the available private models, and the Status
@@ -76,7 +76,7 @@ LXC-bridge address instead, which is plain HTTP (no TLS involved):
 2. Copy the URL it prints — `http://<bridge-ip>:<port>/v1`.
 3. In Open WebUI: **Admin Panel → Connections → OpenAI API**, paste the URL in
    the URL field, click **Save**, and add the `private/` model IDs shown on the
-   Status Page (for example `private/glm-5-2`).
+   Status Page (for example `private/glm-5-3`).
 
 Any other service container on the same server can use the same URL. It is not
 reachable from your browser — that is what the LAN `https://` address is for.
