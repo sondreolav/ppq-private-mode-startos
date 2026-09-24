@@ -11,8 +11,20 @@
 
 [PPQ Private Mode](https://github.com/PayPerQ/ppq-private-mode-proxy) is a local proxy that encrypts AI requests on your server and only lets them be decrypted inside an attested hardware enclave, so neither PPQ.AI nor the model host can read them. This package runs that proxy and points any OpenAI- or Anthropic-compatible client at it.
 
-- **Upstream repo:** <https://github.com/PayPerQ/ppq-private-mode-proxy>
-- **Wrapper repo:** <https://github.com/Start9-Community/ppq-private-mode-startos>
+- **Upstream proxy repo:** <https://github.com/PayPerQ/ppq-private-mode-proxy>
+- **Upstream wrapper (this is a fork of it):** <https://github.com/Start9-Community/ppq-private-mode-startos>
+
+---
+
+## Changes in this fork
+
+Forked from [Start9-Community/ppq-private-mode-startos](https://github.com/Start9-Community/ppq-private-mode-startos). The proxy behaviour is unchanged from upstream — the difference is how same-server clients such as Open WebUI connect to it:
+
+- **New action — Service-to-Service URL.** Resolves the internal LXC-bridge address and prints the `http://<bridge-ip>:<port>/v1` base URL that Open WebUI (or any service container on this same StartOS server) should dial — plain HTTP, no TLS or cert handling. This is what an on-box client must use instead of the LAN `https://` address, which fails certificate validation inside another container's runtime.
+- **Stable consumer contract.** `startos/utils.ts` now exports `apiHostId` (`'main'`) and `apiPort` (`8787`) for dependents to import, mirroring the pattern Open WebUI already uses for its other AI backends.
+- **Docs.** `README.md` and `instructions.md` document the same-server / Open WebUI connection flow.
+
+Everything else behaves like the upstream wrapper: version `0.4.1:1`, built with SDK 2.0.9.
 
 ---
 
