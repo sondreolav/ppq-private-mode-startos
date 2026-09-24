@@ -2,18 +2,18 @@ import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
   // Tracks upstream ppq-private-mode-proxy (package.json version).
-  version: '0.4.1:1',
+  version: '0.6.0:0',
   releaseNotes: {
     en_US:
-      'Added a Service-to-Service URL action that resolves the internal LXC-bridge address Open WebUI (and other services on this same server) can use to reach the proxy without TLS.',
+      'Updated to upstream v0.6.0 (Tinfoil model catalog refreshed to glm-5-3/flash and deepseek-v4-flash; host-header and origin security fixes). Added Service-to-Service URL action for plain-HTTP Open WebUI integration.',
     es_ES:
-      'Se ha añadido una acción de URL de servicio a servicio que resuelve la dirección interna del puente LXC que Open WebUI (y otros servicios de este servidor) pueden usar para llegar al proxy sin TLS.',
+      'Actualizado a upstream v0.6.0 (catálogo de modelos Tinfoil actualizado a glm-5-3/flash y deepseek-v4-flash; mejoras de seguridad de host/origin). Añadida acción de URL de servicio a servicio para Open WebUI.',
     de_DE:
-      'Neue Aktion „Service-to-Service-URL“: ermittelt die interne LXC-Bridge-Adresse, über die Open WebUI (und andere Dienste auf diesem Server) den Proxy ohne TLS erreichen können.',
+      'Aktualisiert auf Upstream v0.6.0 (Tinfoil-Modellkatalog auf glm-5-3/flash und deepseek-v4-flash aktualisiert; Host-/Origin-Sicherheitskorrekturen). Service-to-Service-URL-Aktion für Open WebUI hinzugefügt.',
     pl_PL:
-      'Dodano akcję „Adres URL między usługami”, która ustala wewnętrzny adres mostu LXC, pod którym Open WebUI (i inne usługi na tym serwerze) może dotrzeć do proxy bez TLS.',
+      'Zaktualizowano do upstream v0.6.0 (odświeżony katalog modeli Tinfoil o glm-5-3/flash i deepseek-v4-flash; poprawki bezpieczeństwa nagłówków host/origin). Dodano akcję adresu między usługami dla Open WebUI.',
     fr_FR:
-      "Ajout d'une action « URL de service à service » qui résout l'adresse interne du pont LXC par laquelle Open WebUI (et d'autres services de ce serveur) peuvent joindre le proxy sans TLS.",
+      "Mis à jour vers l'amont v0.6.0 (catalogue Tinfoil actualisé vers glm-5-3/flash et deepseek-v4-flash ; correctifs de sécurité des en-têtes host/origin). Ajout de l'action URL de service à service pour Open WebUI.",
   },
   migrations: {
     up: async ({ effects }) => {},
