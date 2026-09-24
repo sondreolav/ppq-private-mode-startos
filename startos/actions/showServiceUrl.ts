@@ -29,6 +29,10 @@ export const showServiceUrl = sdk.Action.withoutInput(
   async ({ effects }) => {
     const bridge = await sdk.host
       .getBridgeAddress(effects, {
+        // Explicit self-reference: `packageId` may be omitted (it then defaults
+        // to this package), but naming it keeps the call in lockstep with the
+        // documented service-to-service contract in README.md.
+        packageId: 'ppq-private-mode',
         hostId: apiHostId,
         internalPort: apiPort,
         ssl: false,
