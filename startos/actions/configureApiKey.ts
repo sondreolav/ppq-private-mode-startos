@@ -56,14 +56,19 @@ export const configureApiKey = sdk.Action.withInput(
 
   async ({ effects, input }) => {
     // Write each setting only when it actually changed. main.ts re-runs — and
-    // the daemon restarts — on every file change, so writing both files
-    // unconditionally would restart the service twice in a single action.
+    // the daemon restarts — on every file change, so writing values
+    // unconditionally would restart the service (possibly twice) for nothing.
     const currentDebug = (await storeJson.read((s) => s.debug).once()) ?? false
     if (input.debug !== currentDebug) {
       await storeJson.merge(effects, { debug: input.debug })
     }
 
     const apiKey = (input.apiKey ?? '').trim()
-    if (apiKey) await configJson.merge(effects, { apiKey })
+    if (apiKey) {
+      const currentKey = (await configJson.read((c) => c.apiKey).once()) ?? ''
+      if (apiKey !== currentKey) {
+        await configJson.merge(effects, { apiKey })
+      }
+    }
   },
 )
