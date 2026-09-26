@@ -22,11 +22,12 @@ Forked from [Start9-Community/ppq-private-mode-startos](https://github.com/Start
 
 - **Upstream v0.6.0 updates:** Updated model catalog (`private/glm-5-3`, `private/glm-5-3-flash`, `private/deepseek-v4-flash`), host and origin security hardening against browser CSRF/DNS rebinding.
 - **New action — Service-to-Service URL.** Resolves the internal LXC-bridge address and prints the `http://<bridge-ip>:<port>/v1` base URL that Open WebUI (or any service container on this same StartOS server) should dial — plain HTTP, no TLS or cert handling. This is what an on-box client must use instead of the LAN `https://` address, which fails certificate validation inside another container's runtime.
-- **Robust key validation.** Flexible API key pattern in `configureApiKey` allowing modern key formats without false rejection.
+- **Key validation matches upstream.** `configureApiKey` uses the exact same API-key shape check as upstream v0.6.0 (`^sk-[A-Za-z0-9]{16,64}$`), so a key accepted in StartOS is never rejected later by the proxy itself.
+- **No double restart on configure.** The action only writes settings that actually changed, so toggling logging or replacing the key restarts the service once, not twice.
 - **Stable consumer contract.** `startos/utils.ts` exports `apiHostId` (`'main'`) and `apiPort` (`8787`) for dependents to import, mirroring the pattern Open WebUI already uses for its other AI backends.
 - **Docs.** `README.md` and `instructions.md` document the same-server / Open WebUI connection flow and updated models.
 
-Version: `0.6.0:0`, built with SDK 2.0.9.
+Version: `0.6.0:3`, built with SDK 2.0.9.
 
 ---
 
@@ -137,7 +138,8 @@ Sets the API key and the verbose-logging switch.
 - **Cost:** the service restarts, since the proxy reads its config at start.
 - **Repeat safety:** idempotent. **Leaving the key blank keeps the existing one** rather than clearing it, so the action can be used to toggle logging without re-entering the key.
 - **The key is never echoed back into the form.** The logging toggle is pre-filled; the key is not.
-- **The key's shape is checked before it is written.** Upstream's status page rejects a malformed key outright, but a bad key written straight into the config file would only surface later as a failed request — so the same check is applied here.
+- **The key's shape is checked before it is written**, with the exact same pattern upstream v0.6.0 uses (`^sk-[A-Za-z0-9]{16,64}$`) — so a key accepted here is never rejected later by the proxy's own status-page endpoint.
+- **Only changed settings are written.** Writing a setting restarts the daemon, so the action touches `store.json`/`config.json` only when the value actually changed — no spurious double restart.
 
 **Requests are billed to whichever key is set.**
 
@@ -190,6 +192,7 @@ A restored instance comes back with the same key and works immediately, since no
 6. **The package cannot add settings to the proxy's config file**, which upstream rewrites wholesale.
 7. **The only package-level setting is verbose logging.** Everything else is upstream's.
 8. **Same-server clients must use the bridge address, not the LAN `https://` URL** — see [Network Access and Interfaces](#network-access-and-interfaces).
+9. **Known SDK listener warning (accepted).** `main` reads the files reactively with `.const()` — necessary so a key saved on the Status Page clears the setup task. That hits the known Start9 SDK pattern around `FileHelper.produce` that can emit a cosmetic `MaxListenersExceededWarning` (start9labs/start-technologies#3182). It is library-side and cosmetic; the reactive reads are required, so we deliberately do not "fix" it.
 
 ---
 
