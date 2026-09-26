@@ -15,10 +15,11 @@ const inputSpec = InputSpec.of({
     default: null,
     masked: true,
     placeholder: 'sk-...',
-    // Allow standard PPQ keys and broader key lengths/characters (e.g. alphanumeric, underscores, hyphens)
+    // Same exact shape check as upstream v0.6.0, so a key accepted here is
+    // never later rejected by the proxy's own status-page endpoint.
     patterns: [
       {
-        regex: '^sk-[A-Za-z0-9_-]{16,128}$',
+        regex: '^sk-[A-Za-z0-9]{16,64}$',
         description: i18n('A PPQ.AI key starts with "sk-".'),
       },
     ],
@@ -54,7 +55,13 @@ export const configureApiKey = sdk.Action.withInput(
   }),
 
   async ({ effects, input }) => {
-    await storeJson.merge(effects, { debug: input.debug })
+    // Write each setting only when it actually changed. main.ts re-runs — and
+    // the daemon restarts — on every file change, so writing both files
+    // unconditionally would restart the service twice in a single action.
+    const currentDebug = (await storeJson.read((s) => s.debug).once()) ?? false
+    if (input.debug !== currentDebug) {
+      await storeJson.merge(effects, { debug: input.debug })
+    }
 
     const apiKey = (input.apiKey ?? '').trim()
     if (apiKey) await configJson.merge(effects, { apiKey })
