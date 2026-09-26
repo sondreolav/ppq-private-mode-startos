@@ -21,13 +21,14 @@
 Forked from [Start9-Community/ppq-private-mode-startos](https://github.com/Start9-Community/ppq-private-mode-startos). Tracks upstream `ppq-private-mode-proxy` v0.6.0:
 
 - **Upstream v0.6.0 updates:** Updated model catalog (`private/glm-5-3`, `private/glm-5-3-flash`, `private/deepseek-v4-flash`), host and origin security hardening against browser CSRF/DNS rebinding.
+- **DNS-rebinding hardening (default on).** StartOS now sets `PPQ_ALLOWED_HOSTS` automatically to the exact hostnames the API interface is served on (LAN IP, `.local`, private/public domains, the bridge address and loopback). A hostile web page can no longer reach the proxy as "same-origin" or overwrite the stored API key via `/setup/api-key`. The list is resolved reactively, so adding a domain later is picked up on the next restart.
 - **New action — Service-to-Service URL.** Resolves the internal LXC-bridge address and prints the `http://<bridge-ip>:<port>/v1` base URL that Open WebUI (or any service container on this same StartOS server) should dial — plain HTTP, no TLS or cert handling. This is what an on-box client must use instead of the LAN `https://` address, which fails certificate validation inside another container's runtime.
 - **Key validation matches upstream.** `configureApiKey` uses the exact same API-key shape check as upstream v0.6.0 (`^sk-[A-Za-z0-9]{16,64}$`), so a key accepted in StartOS is never rejected later by the proxy itself.
-- **No double restart on configure.** The action only writes settings that actually changed, so toggling logging or replacing the key restarts the service once, not twice.
+- **No glוןouble restart on configure.** The action only writes settings that actually changed (both `debug` and the API key are compared against the stored value first), so toggling logging or replacing the key restarts the service once — and only when something really changed.
 - **Stable consumer contract.** `startos/utils.ts` exports `apiHostId` (`'main'`) and `apiPort` (`8787`) for dependents to import, mirroring the pattern Open WebUI already uses for its other AI backends.
 - **Docs.** `README.md` and `instructions.md` document the same-server / Open WebUI connection flow and updated models.
 
-Version: `0.6.0:3`, built with SDK 2.0.9.
+Version: `0.6.0:4`, built with SDK 2.0.9.
 
 ---
 
@@ -114,6 +115,8 @@ Both are exported from the **same binding**, because they are the same server: o
 
 **Neither is authenticated by StartOS**, and the status page is where the API key can be saved — so anyone who can reach the address can read the attestation state, use your key for inference, and replace it. Treat the address as a credential.
 
+Since 0.6.0:4 the package sets **`PPQ_ALLOWED_HOSTS`** automatically to the hostnames StartOS serves this binding on (LAN IP, `.local`, private/public domains, plus the bridge IP and loopback). This thwarts DNS-rebinding: a request whose `Host` is not one of those names is refused by the proxy before any request handling, so a hostile web page cannot act as "same-origin" against it.
+
 **Same-server consumption (service-to-service).** A client running in *another service's container on this same server* — Open WebUI, a custom agent — must not use the LAN `https://` address: the calling runtime does not trust this server's self-signed Root CA, so the dial fails certificate verification. What it *should* use is the LXC-bridge address, which is plain HTTP — no TLS, no cert handling. Run the **Service-to-Service URL** action and paste the returned `http://<bridge-ip>:<port>/v1` URL into the client. The LAN `https://` address (e.g. `https://192.168.0.158:56849`) remains correct for off-box clients — a browser with the server's Root CA trusted, or `curl -k`.
 
 ## Installation and First-Run Flow
@@ -139,7 +142,7 @@ Sets the API key and the verbose-logging switch.
 - **Repeat safety:** idempotent. **Leaving the key blank keeps the existing one** rather than clearing it, so the action can be used to toggle logging without re-entering the key.
 - **The key is never echoed back into the form.** The logging toggle is pre-filled; the key is not.
 - **The key's shape is checked before it is written**, with the exact same pattern upstream v0.6.0 uses (`^sk-[A-Za-z0-9]{16,64}$`) — so a key accepted here is never rejected later by the proxy's own status-page endpoint.
-- **Only changed settings are written.** Writing a setting restarts the daemon, so the action touches `store.json`/`config.json` only when the value actually changed — no spurious double restart.
+- **Only changed settings are written.** Each value (`debug`, `apiKey`) is compared against the stored value first; nothing is written when it did not change, so no spurious restarts.
 
 **Requests are billed to whichever key is set.**
 
@@ -193,6 +196,7 @@ A restored instance comes back with the same key and works immediately, since no
 7. **The only package-level setting is verbose logging.** Everything else is upstream's.
 8. **Same-server clients must use the bridge address, not the LAN `https://` URL** — see [Network Access and Interfaces](#network-access-and-interfaces).
 9. **Known SDK listener warning (accepted).** `main` reads the files reactively with `.const()` — necessary so a key saved on the Status Page clears the setup task. That hits the known Start9 SDK pattern around `FileHelper.produce` that can emit a cosmetic `MaxListenersExceededWarning` (start9labs/start-technologies#3182). It is library-side and cosmetic; the reactive reads are required, so we deliberately do not "fix" it.
+10. **Upstream request bodies are unbounded (accepted, documented).** Upstream v0.6.0 does not cap HTTP request-body size, so a client that can reach the API could spend memory with very large POSTs (a potential DoS). This is upstream code — this wrapper cannot fix it without forking the proxy — so the mitigation is to keep the API interface private (LAN/VPN/Tor) and never expose it on the public internet. The interface is unauthenticated anyway (see #3), so it should never be publicly reachable.
 
 ---
 
@@ -217,6 +221,7 @@ startos_managed_env_vars:
   - HOST
   - PORT
   - DEBUG
+  - PPQ_ALLOWED_HOSTS # set automatically from the binding's addresses (v0.6.0:4+)
   # PPQ_API_KEY is deliberately NOT set — the proxy's key store owns the key
 dependencies: [] # but requires internet and a funded PPQ.AI account
 interfaces:
