@@ -34,7 +34,13 @@ verified, tried, and decided belongs in the commit message and the PR body.
 
 ## This repo
 
+- **This is a fork, and upstream is a moving target.** `packageRepo` points at `sondreolav/ppq-private-mode-startos`; upstream is `Start9-Community/ppq-private-mode-startos`. Take upstream changes with `git merge upstream/main` — never by hand-copying files. A hand-copy leaves upstream's commits outside our history, so GitHub keeps reporting the fork as *N commits behind*, and the gap grows with every upstream release.
+- **The package version tracks the vendored proxy, not upstream's wrapper version.** `version` in `startos/versions/current.ts` follows `ppq-private-mode-proxy/package.json` (currently `0.6.0`), while upstream's wrapper sits on its own `0.4.x` line. That makes `current.ts` a conflict on every upstream merge: keep our version, bump the revision (`0.6.0:5`), and write our own release notes.
+- **Don't merge `upstream/next`.** `main` is the released line — upstream's `v0.4.1_1` tag sits on it. Our own tags use the same shape: `v0.6.0_5`, with an underscore because git refs cannot contain `:`.
+- **`PPQ_ALLOWED_HOSTS` is derived from the binding's own addresses.** Never hardcode hostnames; `main.ts` resolves them reactively, so an address added later is picked up on the next restart.
 - **Put package-owned settings in `store.json`, never in `config.json`** — the proxy rewrites `config.json` whole when a key is saved on the Status Page.
 - **Don't set `PPQ_API_KEY`** — the proxy's own key store must stay the key's only owner, so the action and the Status Page write the same key.
 - **A blank key field keeps the saved key; don't "fix" it to clear on empty** — it is how the action toggles logging without re-entering the key.
+- **The key pattern is validated in the action** because upstream only validates on the Status Page — a malformed key written straight to `config.json` surfaces later as a 401 on the first request.
+- **The task is `important`, not `critical`, on purpose.** A `critical` task suspends the ordinary controls, which would stop the user starting the service — and the Status Page is the other place a key can be saved.
 - **Default branch is `main`, not `master`.** Keep `main` in every workflow when resyncing them from the template.
