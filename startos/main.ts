@@ -32,24 +32,21 @@ export const main = sdk.setupMain(async ({ effects }) => {
   // dials). Resolved reactively so an address added later is picked up on the
   // next restart.
   const servedHosts = await sdk.host
-    .getOwn(
-      effects,
-      apiHostId,
-      (host) =>
-        host
-          ? utils
-              .filledAddress(host, {
-                hostId: apiHostId,
-                internalPort: apiPort,
-                username: null,
-                scheme: null,
-                sslScheme: null,
-                suffix: '',
-              })
-              .matchesAny([{ visibility: 'private' }, { visibility: 'public' }])
-              .filter({ exclude: { kind: ['localhost', 'link-local'] } })
-              .hostnames.map((h) => h.hostname)
-          : [],
+    .getOwn(effects, apiHostId, (host) =>
+      host
+        ? utils
+            .filledAddress(host, {
+              hostId: apiHostId,
+              internalPort: apiPort,
+              username: null,
+              scheme: null,
+              sslScheme: null,
+              suffix: '',
+            })
+            .matchesAny([{ visibility: 'private' }, { visibility: 'public' }])
+            .filter({ exclude: { kind: ['localhost', 'link-local'] } })
+            .hostnames.map((h) => h.hostname)
+        : [],
     )
     .const()
 
