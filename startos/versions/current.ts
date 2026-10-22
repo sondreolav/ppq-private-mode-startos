@@ -13,7 +13,7 @@ export const current = VersionInfo.of({
     pl_PL:
       'Aktualizuje Node.js do wersji 22.23.4 z poprawkami bezpieczeństwa i przechodzi na start-sdk 3.1.0.',
     fr_FR:
-      "Met à jour Node.js vers 22.23.4 avec des correctifs de sécurité et passe à start-sdk 3.1.0.",
+      'Met à jour Node.js vers 22.23.4 avec des correctifs de sécurité et passe à start-sdk 3.1.0.',
   },
   migrations: {
     up: async ({ effects }) => {},
