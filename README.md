@@ -27,10 +27,9 @@ Forked from [Start9-Community/ppq-private-mode-startos](https://github.com/Start
 - **No double restart on configure.** The action only writes settings that actually changed (both `debug` and the API key are compared against the stored value first), so toggling logging or replacing the key restarts the service once — and only when something really changed.
 - **Stable consumer contract.** `startos/utils.ts` exports `apiHostId` (`'main'`) and `apiPort` (`8787`) for dependents to import, mirroring the pattern Open WebUI already uses for its other AI backends.
 - **Docs.** `README.md` and `instructions.md` document the same-server / Open WebUI connection flow and updated models.
-- **Toolchain rebased onto upstream's SDK migration.** This fork now builds with start-sdk 3.0.3: file models use `z.looseObject`, the manifest and init take an `sdk.Dependencies.of()` builder, and the toolchain scripts and devDependencies come from the SDK rather than `package.json`.
+- **Toolchain rebased onto upstream's SDK migration.** This fork builds with start-sdk 3.1.0: file models use `z.looseObject`, the manifest and init take an `sdk.Dependencies.of()` builder, and the toolchain scripts and devDependencies come from the SDK rather than `package.json`. The container is rebuilt on Node.js 22.23.4 for its October 2026 security release.
 
-Version: `0.6.0:5`, built with SDK 3.0.3.
-
+Version: `0.6.0:6`, built with SDK 3.1.0.
 ---
 
 ## Table of Contents
