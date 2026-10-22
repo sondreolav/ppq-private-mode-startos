@@ -2,18 +2,18 @@ import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 
 export const current = VersionInfo.of({
   // Tracks upstream ppq-private-mode-proxy (package.json version).
-  version: '0.6.0:5',
+  version: '0.6.0:6',
   releaseNotes: {
     en_US:
-      'Rebased onto upstream start-sdk 3.0.3. The Verbose Logging description now states that error messages may include sensitive content, even when verbose logging is off.',
+      'Updates Node.js to 22.23.4 with security fixes and moves to start-sdk 3.1.0.',
     es_ES:
-      'Actualizado a start-sdk 3.0.3. La descripción de Registro detallado ahora indica que los mensajes de error pueden incluir contenido sensible, incluso con el registro desactivado.',
+      'Actualiza Node.js a 22.23.4 con correcciones de seguridad y pasa a start-sdk 3.1.0.',
     de_DE:
-      'Auf start-sdk 3.0.3 umgestellt. Die Beschreibung von „Ausführliche Protokollierung“ weist nun darauf hin, dass Fehlermeldungen sensiblen Inhalt enthalten können, auch wenn die Protokollierung aus ist.',
+      'Aktualisiert Node.js auf 22.23.4 mit Sicherheitskorrekturen und wechselt zu start-sdk 3.1.0.',
     pl_PL:
-      'Przejście na start-sdk 3.0.3. Opis opcji Szczegółowe logowanie informuje teraz, że komunikaty błędów mogą zawierać poufne treści, nawet gdy logowanie jest wyłączone.',
+      'Aktualizuje Node.js do wersji 22.23.4 z poprawkami bezpieczeństwa i przechodzi na start-sdk 3.1.0.',
     fr_FR:
-      "Passage à start-sdk 3.0.3. La description de la Journalisation détaillée indique désormais que les messages d'erreur peuvent contenir du contenu sensible, même lorsque la journalisation est désactivée.",
+      "Met à jour Node.js vers 22.23.4 avec des correctifs de sécurité et passe à start-sdk 3.1.0.",
   },
   migrations: {
     up: async ({ effects }) => {},

@@ -59,6 +59,7 @@ export const showServiceUrl = sdk.Action.withoutInput(
         copyable: true,
         qr: false,
         masked: false,
+        launchable: false,
       },
     }
   },
