@@ -18,9 +18,10 @@
 
 ## Changes in this fork
 
-Forked from [Start9-Community/ppq-private-mode-startos](https://github.com/Start9-Community/ppq-private-mode-startos). Tracks upstream `ppq-private-mode-proxy` v0.6.0:
+Forked from [Start9-Community/ppq-private-mode-startos](https://github.com/Start9-Community/ppq-private-mode-startos). Tracks upstream `ppq-private-mode-proxy` v0.8.0:
 
-- **Upstream v0.6.0 updates:** Updated model catalog (`private/glm-5-3`, `private/glm-5-3-flash`, `private/deepseek-v4-flash`), host and origin security hardening against browser CSRF/DNS rebinding.
+- **Upstream v0.8.0:** The private model list is read from PPQ.AI at startup, so models PPQ.AI adds or retires appear without a package update — `private/deepseek-v4-flash` is now `private/deepseek-v4-1-flash`. Adds PDF and document input for private models and fixes requests from clients that send an empty tool list.
+- **Upstream v0.6.0 (carried in):** host and origin security hardening against browser CSRF/DNS rebinding.
 - **DNS-rebinding hardening (default on).** StartOS now sets `PPQ_ALLOWED_HOSTS` automatically to the exact hostnames the API interface is served on (LAN IP, `.local`, private/public domains, the bridge address and loopback). A hostile web page can no longer reach the proxy as "same-origin" or overwrite the stored API key via `/setup/api-key`. The list is resolved reactively, so adding a domain later is picked up on the next restart.
 - **New action — Service-to-Service URL.** Resolves the internal LXC-bridge address and prints the `http://<bridge-ip>:<port>/v1` base URL that Open WebUI (or any service container on this same StartOS server) should dial — plain HTTP, no TLS or cert handling. This is what an on-box client must use instead of the LAN `https://` address, which fails certificate validation inside another container's runtime.
 - **Key validation matches upstream.** `configureApiKey` uses the exact same API-key shape check as upstream v0.6.0 (`^sk-[A-Za-z0-9]{16,64}$`), so a key accepted in StartOS is never rejected later by the proxy itself.
