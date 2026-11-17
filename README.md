@@ -143,7 +143,7 @@ Sets the API key and the verbose-logging switch.
 - **Repeat safety:** idempotent. **Leaving the key blank keeps the existing one** rather than clearing it, so the action can be used to toggle logging without re-entering the key.
 - **The key is never echoed back into the form.** The logging toggle is pre-filled; the key is not.
 - **Verbose logging** adds model information for accepted chat requests and logs OpenAI stream errors. Error messages may include sensitive content, even when verbose logging is off.
-- **The key's shape is checked before it is written**, with the exact same pattern upstream v0.6.0 uses (`^sk-[A-Za-z0-9]{16,64}$`) — so a key accepted here is never rejected later by the proxy's own status-page endpoint.
+- **The key's shape is checked before it is written**, with the exact same pattern the upstream proxy uses (`^sk-[A-Za-z0-9]{16,64}$`) — so a key accepted here is never rejected later by the proxy's own status-page endpoint.
 - **Only changed settings are written.** Each value (`debug`, `apiKey`) is compared against the stored value first; nothing is written when it did not change, so no spurious restarts.
 
 **Requests are billed to whichever key is set.**
